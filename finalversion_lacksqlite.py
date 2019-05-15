@@ -50,19 +50,15 @@ def getCurrInfo(fpath):
 
 
         for i in range(0, len(keyList), 1):
-            list[i] = ilist[6 * i:6 * i + 5]
+            list[i] = ilist[6 * i:6 * i + 6]
         print(list[0])
 
         try:
-            '''with open(fpath, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(["货币名称", "汇买价", "钞买价", "汇卖价", "钞卖价", "折算价"])
-                writer.writerows(list)  # 带着标签但是格式正确了'''
-
             with open(fpath, 'w', newline='') as f:
                 writer = csv.writer(f)
-                for i in list:
-                    writer.writerow(i)
+                writer.writerow(["货币名称", "汇买价", "钞买价", "汇卖价", "钞卖价", "折算价"])
+                writer.writerows(list)  
+
         except:
             print('csvfile save failed.')
 
