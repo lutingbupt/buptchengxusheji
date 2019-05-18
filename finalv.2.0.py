@@ -20,6 +20,32 @@ def getHTML(url):
         return "error connection"
 
 
+def selectToSQ(list1):#筛选货币存入本地数据库
+    list2= [100.0]
+    data = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+    for i in range(len(list1)):
+        if list1[i] == '美元':
+            USD = i + 5
+        if list1[i] == '日元':
+            JPY = i + 5
+        if list1[i] == '英镑':
+            GDP = i + 5
+        if list1[i] == '欧元':
+            EUR = i+ 5
+        if list1[i] == '港币':
+            HKD = i + 5
+    list2.extend([float(list1[USD]), float(list1[JPY]),float(list1[GDP]),float(list1[EUR]), float(list1[HKD])])
+    print(list2)
+    for i in range(0, 6, 1):
+        data[i] = (i, list2[i])
+    cx = sqlite3.connect("E:/currencies/currency.db")#连接到数据库
+    cu = cx.cursor()
+    cu.execute("create table data19051815 (id integer primary key,value real)")#创建表
+    for t in data:
+        cx.execute("insert into data19051815 values (?,?)", t)
+    cx.commit()
+
+
 def getCurrInfo(fpath):
     try:
         url = 'http://www.usd-cny.com/bankofchina.htm'
@@ -35,21 +61,15 @@ def getCurrInfo(fpath):
         keyList = currInfo.find_all('a')
         list = [[0] * 6 for i in range(len(keyList))] #一个二维数组
         ilist =[]
-        flist =[]
         print('count country', len(keyList))  # 国家货币总数
         for i in range(len(keyList)):
             key = keyList[i].text
-            # val = valueList[6*i+1].text + ' ' + valueList[6*i+2].text + ' ' + valueList[6*i + 3].text + ' ' + valueList[6*i+ 4].text + ' ' + valueList[6*i+5].text
             val = valueList[6 * i + 1].text + '\n ' + valueList[6 * i + 2].text + '\n' + valueList[
                 6 * i + 3].text + '\n' + valueList[6 * i + 4].text + '\n' + valueList[6 * i + 5].text
             infoDict[key] = val
 
         for i in range(len(valueList)):
-            ilist.append(valueList[i].string)
-        '''for i in range(len(valueList)):
-            if(i != 6*i):
-                continue
-            flist.append(float(ilist[i]))'''
+            ilist.append(valueList[i].string)#将标签中的字符提取出来
 
 
 
@@ -68,15 +88,7 @@ def getCurrInfo(fpath):
             print('csvfile save failed.')
 
         try:
-            data = [(0,100),(1,float(ilist[155])),(2,float(ilist[77])),(3,float(ilist[41])),(4,float(ilist[47])),(5,float(ilist[53]))]
-            print(data)
-            #name = 'data' + time.strftime('%Y&%m&%d&%M', time.localtime(time.time()))
-            cx = sqlite3.connect("E:/currencies/currency.db")
-            cu = cx.cursor()
-            cu.execute("create table data0518 (id integer primary key,value real)" )
-            for t in data:
-                cx.execute("insert into data0518 values (?,?)", t)
-            cx.commit()
+            selectToSQ(ilist)
             print('database success')
         except:
             print('database error')
@@ -95,7 +107,6 @@ def main(inurl):
     flag = 0
     outputfiles = root + 'currinfo' + time.strftime('%Y&%m&%d&%M', time.localtime(time.time())) + '.csv'
     getCurrInfo(outputfiles)
-    # write_csv_file(outputfiles, ['货币名称','汇买价','钞买价','汇卖价', '钞卖价', '折算价'], list)
 
 
     try:
